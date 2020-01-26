@@ -1,0 +1,57 @@
+Sub FilterSheets()
+'This macro works under the assumption that the data will always be in columns A-J
+'and the criteria will always be in columns L-M
+'If this ever changes, you will need to edit the column variables below
+    
+    'Declaring data types
+    Dim completeSheet As String
+    Dim sheetsArray(0 To 4) As String
+    Dim sheetRowCount As Integer
+    Dim sheetRange As String
+    Dim criteriaRows As Integer
+    Dim fullRange As String
+    Dim criteriaCountRange As String
+    
+    '___________________________________________________________________
+    
+    'Sheet to apply filter to
+    completeSheet = "Complete Sheet"
+    
+    'Sheets to copy to
+    sheetsArray(0) = "A"
+    sheetsArray(1) = "B"
+    sheetsArray(2) = "C"
+    sheetsArray(3) = "D"
+    sheetsArray(4) = "E"
+    
+    'Columns
+    lastColumn = "J" 'The last column the data is in
+    criteriaStart = "L"
+    criteriaEnd = "M"
+    
+    '___________________________________________________________________
+    
+    'More variables
+    criteriaCountRange = criteriaStart & ":" & criteriaStart
+    completeSheetColumns = "A:" & lastColumn
+    copyRangeLocation = "A1:" & lastColumn & "1"
+    
+    'Loop through the sheets and apply Advanced Filter
+    For Each sheetInstance In sheetsArray
+    
+        'Delete existing data from the specified sheets
+        sheetRowCount = Worksheets(sheetInstance).Range("I:I").Cells.SpecialCells(xlCellTypeConstants).Count
+        sheetRange = "A2:" & lastColumn & sheetRowCount
+        Sheets(sheetInstance).Range(sheetRange).Delete Shift:=xlUp
+    
+        'Find criteria range on sheet
+        criteriaRows = Worksheets(sheetInstance).Range(criteriaCountRange).Cells.SpecialCells(xlCellTypeConstants).Count
+        fullRange = criteriaStart & "1:" & criteriaEnd & criteriaRows
+        
+        'Apply filter and copy to sheet
+        Sheets("Complete Sheet").Columns(completeSheetColumns).AdvancedFilter Action:=xlFilterCopy, _
+            criteriaRange:=Sheets(sheetInstance).Range(fullRange), CopyToRange:= _
+            Sheets(sheetInstance).Range(copyRangeLocation), Unique:=False
+    Next
+
+End Sub
